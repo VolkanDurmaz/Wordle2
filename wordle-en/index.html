@@ -5,15 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wordle 1.0</title>
-    <link rel="stylesheet" href="/wordle/style.css?v=1.1.7">
+    <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
 
     <div class="header-container">
-    <h1>WORDLE EN</h1>
-    <button id="lang-btn" class="lang-button">TR</button>
-</div>
+        <div class="timer-settings">
+            <label for="timer-select">Mod:</label>
+            <select id="timer-select" onchange="changeTimerMode()">
+                <option value="60">1 Dakika</option>
+                <option value="120" selected>2 Dakika</option>
+                <option value="300">5 Dakika</option>
+                <option value="0">Süresiz</option>
+            </select>
+            <div id="timer-display" class="timer-container">02:00</div>
+        </div>
+        <h1>WORDLE EN</h1>
+        <button id="lang-btn" class="lang-button">TR</button>
+    </div>
     <div id="game-board"></div>
 
     <div id="keyboard" style="margin-top: 10px;"></div>
@@ -21,16 +31,16 @@
     <p id="message"></p>
 
     <div id="word-info-modal" class="modal hidden">
-    <div class="modal-content">
-        <span id="close-modal">&times;</span>
-        <p id="message"></p>
-        <h2 id="modal-word"></h2>
-        <p id="modal-meaning">Anlamı yükleniyor...</p>
-        <div id="modal-action"></div>
+        <div class="modal-content">
+            <span id="close-modal">&times;</span>
+            <p id="message"></p>
+            <h2 id="modal-word"></h2>
+            <p id="modal-meaning">Anlamı yükleniyor...</p>
+            <div id="modal-action"></div>
+        </div>
     </div>
-</div>
 
-    <script src="/wordle/wordle.js" type="module"></script>
+    <script src="../wordle.js" type="module"></script>
 
 </body>
 

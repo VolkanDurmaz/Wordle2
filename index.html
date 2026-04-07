@@ -11,6 +11,16 @@
 <body>
 
     <div class="header-container">
+        <div class="timer-settings">
+    <label for="timer-select">Mod:</label>
+    <select id="timer-select" onchange="changeTimerMode()">
+        <option value="60">1 Dakika</option>
+        <option value="120" selected>2 Dakika</option>
+        <option value="300">5 Dakika</option>
+        <option value="0">Süresiz</option>
+    </select>
+    <div id="timer-display" class="timer-container">02:00</div>
+</div>
         <h1>WORDLE TR</h1>
         <button id="lang-btn" class="lang-button">EN</button>
     </div>

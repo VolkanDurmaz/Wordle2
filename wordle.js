@@ -9,9 +9,14 @@ const SECRET_WORD = currentWords[Math.floor(Math.random() * currentWords.length)
 
 let attempts = 0;
 let currentGuess = "";
+let timerInterval = null;
+let timeLeft = 120; // Varsayılan
+let timerStarted = false;
+
 const board = document.getElementById("game-board");
 const message = document.getElementById("message");
 
+// Board Oluşturma
 for (let i = 0; i < 30; i++) {
     let tile = document.createElement("div");
     tile.classList.add("tile");
@@ -81,14 +86,18 @@ function checkGuess() {
         const isLoss = rowToProcess === 5 && !isWin;
 
         if (isWin || isLoss) {
-            // Mesajı güncelle
+            // Oyun bittiğinde zamanlayıcıyı durdur
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
             message.innerText = isWin 
                 ? (isEnglish ? "Impressive!" : "Tebrikler!") 
                 : (isEnglish ? "Game Over! Word: " : "Kaybettin! Kelime: ") + SECRET_WORD;
             
-            attempts = 6; // Girişleri kilitle
+            attempts = 6; 
 
-            // Kelime anlamını gösteren paneli 1 saniye gecikmeyle aç (Oyuncu sonucu idrak etsin)
             setTimeout(() => {
                 showWordDefinition(SECRET_WORD);
             }, 1000);
@@ -139,6 +148,12 @@ document.addEventListener("keydown", (e) => {
 
 function handleKeyPress(key) {
     if (attempts >= 6) return;
+    
+    // Süre Infinity değilse ve henüz başlamadıysa başlat
+    if (!timerStarted && timeLeft !== Infinity) {
+        startTimer();
+    }
+
     if (key === "ENTER") {
         if (currentGuess.length === 5) checkGuess();
     } else if (key === "BACK") {
@@ -173,6 +188,7 @@ function shakeRow(rowNumber) {
     }
 }
 
+// Dil Değiştirme
 const langBtn = document.getElementById("lang-btn");
 if (langBtn) {
     langBtn.addEventListener("click", () => {
@@ -186,6 +202,7 @@ if (langBtn) {
 
 createKeyboard();
 
+// Modal ve Tanım Fonksiyonu
 async function showWordDefinition(word) {
     const modal = document.getElementById("word-info-modal");
     const modalWord = document.getElementById("modal-word");
@@ -196,19 +213,15 @@ async function showWordDefinition(word) {
 
     if (isEnglish) {
         try {
-            // Ücretsiz Free Dictionary API
             const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
             const data = await response.json();
-            
             if (data[0] && data[0].meanings[0]) {
-                const definition = data[0].meanings[0].definitions[0].definition;
-                modalMeaning.innerText = definition;
+                modalMeaning.innerText = data[0].meanings[0].definitions[0].definition;
             }
         } catch (error) {
             modalMeaning.innerText = "Definition not found.";
         }
     } else {
-        // Türkçe için doğrudan API bulmak zor olduğu için yönlendirme butonu koyuyoruz
         modalMeaning.innerText = "Kelimenin anlamını TDK üzerinden inceleyebilirsiniz.";
         document.getElementById("modal-action").innerHTML = `
             <a href="https://sozluk.gov.tr/?ara=${word.toLocaleLowerCase('tr-TR')}" 
@@ -218,7 +231,65 @@ async function showWordDefinition(word) {
     }
 }
 
-// Kapatma butonu için
 document.getElementById("close-modal").onclick = () => {
     document.getElementById("word-info-modal").classList.remove("show");
 };
+
+// --- ZAMANLAYICI FONKSİYONLARI ---
+
+function changeTimerMode() {
+    if (timerStarted) {
+        alert("Oyun sırasında mod değiştiremezsiniz!");
+        return;
+    }
+    const select = document.getElementById("timer-select");
+    const seconds = parseInt(select.value);
+    
+    if (seconds === 0) {
+        document.getElementById("timer-display").innerText = "∞";
+        timeLeft = Infinity;
+    } else {
+        timeLeft = seconds;
+        updateTimerDisplay();
+    }
+}
+
+function updateTimerDisplay() {
+    if (timeLeft === Infinity) return;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById("timer-display").innerText = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startTimer() {
+    if (timeLeft === Infinity || timerInterval) return;
+    
+    timerStarted = true;
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 10) {
+            document.getElementById("timer-display").classList.add("timer-urgent");
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endGameByTime();
+        }
+    }, 1000);
+}
+
+function endGameByTime() {
+    if (attempts >= 6) return;
+    attempts = 6;
+    message.innerText = isEnglish ? "Time's up!" : "Süre bitti!";
+    showWordDefinition(SECRET_WORD);
+}
+
+// Olay Dinleyicisini Bağla
+const timerSelectElement = document.getElementById("timer-select");
+if (timerSelectElement) {
+    timerSelectElement.addEventListener("change", changeTimerMode);
+}

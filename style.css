@@ -210,3 +210,28 @@ body { font-family: sans-serif; display: flex; flex-direction: column; align-ite
     text-transform: uppercase;
     margin-bottom: 10px;
 }
+
+.timer-settings {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#timer-select {
+    background: #121213;
+    color: white;
+    border: 1px solid #3a3a3c;
+    padding: 5px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.timer-container {
+    font-family: monospace;
+    font-size: 1.2rem;
+    color: #f3843b;
+    min-width: 60px;
+    text-align: center;
+}
